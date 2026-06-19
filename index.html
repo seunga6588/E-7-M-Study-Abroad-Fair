@@ -289,7 +289,8 @@ async function runAnalysis() {
   try {
     const res = await fetch(API_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      redirect: "follow",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
       body: JSON.stringify({ action: "analyze" })
     });
     const data = await res.json();
@@ -300,7 +301,7 @@ async function runAnalysis() {
     }
     result.style.display = "block";
   } catch(e) {
-    result.textContent = "분석 요청 실패. 잠시 후 다시 시도해주세요.";
+    result.textContent = "분석 요청 실패: " + e.message;
     result.style.display = "block";
   }
 
@@ -308,10 +309,3 @@ async function runAnalysis() {
   btn.disabled = false;
   btn.textContent = "다시 분석";
 }
-
-loadData();
-setInterval(loadData, 5 * 60 * 1000);
-</script>
-
-</body>
-</html>
