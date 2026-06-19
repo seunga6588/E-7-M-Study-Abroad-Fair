@@ -264,3 +264,9 @@ function doGet(e) {
     .createTextOutput(output)
     .setMimeType(ContentService.MimeType.JSON);
 }
+function testSheetName() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheets = ss.getSheets();
+  const names = sheets.map(s => s.getName());
+  SpreadsheetApp.getUi().alert("시트 목록: " + names.join(", "));
+}
