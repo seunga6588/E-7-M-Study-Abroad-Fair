@@ -3,56 +3,99 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>E-7-M 유학박람회 응답 현황</title>
+  <title>E-7-M 유학박람회 응답 현황 | 서정대학교</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Noto Sans KR', sans-serif; background: #f0f4f8; color: #333; }
+    body { font-family: 'Noto Sans KR', sans-serif; background: #f4f6fb; color: #222; }
+
     header {
-      background: #1a73e8; color: white;
-      padding: 24px; text-align: center;
+      background: #11306E;
+      padding: 28px 24px 20px;
+      text-align: center;
     }
-    header h1 { font-size: 22px; margin-bottom: 6px; }
-    header p { font-size: 14px; opacity: 0.85; }
+    header img {
+      height: 52px;
+      margin-bottom: 14px;
+      filter: brightness(0) invert(1); /* 로고 흰색으로 */
+    }
+    header h1 {
+      font-size: 20px; color: white;
+      font-weight: 700; margin-bottom: 4px;
+    }
+    header p { font-size: 13px; color: rgba(255,255,255,0.75); }
+
+    .badge-wrap { margin-top: 14px; }
     #total-badge {
-      display: inline-block; background: white; color: #1a73e8;
-      font-weight: bold; font-size: 16px;
-      padding: 6px 20px; border-radius: 20px; margin-top: 10px;
+      display: inline-block;
+      background: #E6007E; color: white;
+      font-weight: 700; font-size: 15px;
+      padding: 7px 24px; border-radius: 24px;
     }
-    #last-updated { font-size: 12px; opacity: 0.7; margin-top: 6px; }
+    #last-updated {
+      font-size: 11px; color: rgba(255,255,255,0.6);
+      margin-top: 8px;
+    }
+
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
-      gap: 24px; padding: 24px; max-width: 1200px; margin: 0 auto;
+      grid-template-columns: repeat(auto-fit, minmax(460px, 1fr));
+      gap: 24px; padding: 28px; max-width: 1200px; margin: 0 auto;
     }
     .card {
-      background: white; border-radius: 12px;
-      padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      background: white; border-radius: 14px;
+      padding: 22px; box-shadow: 0 2px 12px rgba(17,48,110,0.08);
+      border-top: 4px solid #11306E;
     }
-    .card h2 { font-size: 14px; color: #1a73e8; margin-bottom: 16px; font-weight: 600; }
-    .chart-wrap { position: relative; height: 280px; }
-    #loading { text-align: center; padding: 60px; font-size: 16px; color: #888; }
+    .card h2 {
+      font-size: 13px; color: #11306E;
+      margin-bottom: 16px; font-weight: 700;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #eef0f6;
+    }
+    .chart-wrap { position: relative; height: 270px; }
+
+    #loading {
+      text-align: center; padding: 80px;
+      font-size: 15px; color: #888;
+    }
+
+    footer {
+      text-align: center; padding: 20px;
+      font-size: 12px; color: #aaa;
+      border-top: 1px solid #e8eaf0;
+      margin-top: 12px;
+    }
   </style>
 </head>
 <body>
 
 <header>
+  <img src="시그니처_좌우조합_기본형_국문.png" alt="서정대학교 로고">
   <h1>📊 E-7-M 유학박람회 응답 현황</h1>
-  <p>서정대학교 글로벌섬유패션비즈니스과</p>
-  <div id="total-badge">총 응답자: 집계 중...</div>
-  <div id="last-updated"></div>
+  <p>글로벌섬유패션비즈니스과</p>
+  <div class="badge-wrap">
+    <div id="total-badge">총 응답자: 집계 중...</div>
+    <div id="last-updated"></div>
+  </div>
 </header>
 
 <div id="loading">📡 데이터 불러오는 중...</div>
 <div class="grid" id="chart-grid" style="display:none"></div>
 
+<footer>© 서정대학교 글로벌섬유패션비즈니스과</footer>
+
 <script>
   const API_URL = "https://script.google.com/macros/s/AKfycbzf0Jwdx9kJX6Ef05Golz1YbuZ_bT7ZjbczNyLR7G4yvlUpkYXWlyOT5OG7g9XaXAbc/exec";
 
+  // 서정대 네이비·핑크 계열 색상
   const COLORS = [
-    "#4285F4","#EA4335","#FBBC04","#34A853",
-    "#FF6D00","#AB47BC","#00ACC1","#43A047",
-    "#F4511E","#039BE5","#7CB342","#E91E63"
+    "#11306E", "#E6007E",
+    "#1a4fa0", "#ff4aa8",
+    "#2d6fd4", "#ff80c8",
+    "#5b92e0", "#ffaad8",
+    "#8db4ed", "#ffd0eb",
+    "#c2d6f7", "#ffe8f5"
   ];
 
   async function loadData() {
@@ -89,14 +132,18 @@
             datasets: [{
               data: item.data,
               backgroundColor: COLORS.slice(0, item.labels.length),
-              borderWidth: 2
+              borderWidth: 2,
+              borderColor: "#fff"
             }]
           },
           options: {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-              legend: { position: "right", labels: { font: { size: 11 }, padding: 12 } },
+              legend: {
+                position: "right",
+                labels: { font: { size: 11 }, padding: 12, color: "#333" }
+              },
               tooltip: {
                 callbacks: {
                   label: ctx => {
@@ -120,7 +167,6 @@
   }
 
   loadData();
-  // 5분마다 자동 새로고침
   setInterval(loadData, 5 * 60 * 1000);
 </script>
 
