@@ -8,7 +8,6 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Noto Sans KR', sans-serif; background: #f4f6fb; color: #222; }
-
     header {
       background: #11306E;
       padding: 24px 24px 0;
@@ -28,7 +27,6 @@
       padding: 6px 20px; border-radius: 20px; margin-bottom: 6px;
     }
     #last-updated { font-size: 11px; color: rgba(255,255,255,0.55); margin-bottom: 0; padding-bottom: 0; }
-
     .tabs {
       display: flex; justify-content: center;
       gap: 0; margin-top: 16px;
@@ -46,10 +44,8 @@
       color: white;
       border-bottom: 3px solid #E6007E;
     }
-
     .tab-content { display: none; }
     .tab-content.active { display: block; }
-
     .analysis-wrap { max-width: 900px; margin: 0 auto; padding: 28px 24px; }
     .analysis-header {
       display: flex; align-items: center; justify-content: space-between;
@@ -75,7 +71,6 @@
       font-size: 14px; line-height: 1.8; color: #333;
       white-space: pre-wrap; display: none;
     }
-
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(460px, 1fr));
@@ -93,7 +88,6 @@
       border-bottom: 1px solid #eef0f6;
     }
     .chart-wrap { position: relative; height: 270px; }
-
     .lock-wrap {
       max-width: 400px; margin: 60px auto; text-align: center;
       background: white; border-radius: 14px;
@@ -115,7 +109,6 @@
     }
     .lock-wrap button:hover { background: #1a4fa0; }
     .lock-error { color: #E6007E; font-size: 13px; margin-top: 8px; display: none; }
-
     .respondent-wrap { max-width: 1100px; margin: 0 auto; padding: 28px 24px; }
     .respondent-wrap h2 { font-size: 15px; color: #11306E; font-weight: 700; margin-bottom: 16px; }
     .resp-table { width: 100%; border-collapse: collapse; font-size: 13px; background: white;
@@ -127,8 +120,25 @@
     .resp-table td { padding: 10px 14px; border-bottom: 1px solid #eef0f6; color: #333; }
     .resp-table tr:last-child td { border-bottom: none; }
     .resp-table tr:hover td { background: #f8f9ff; }
-
     #loading-main { text-align: center; padding: 80px; font-size: 15px; color: #888; }
+    #debug-toggle {
+      position: fixed; bottom: 20px; right: 20px;
+      background: #11306E; color: white;
+      padding: 8px 12px; border-radius: 6px;
+      cursor: pointer; font-size: 11px; font-weight: bold;
+      z-index: 9998;
+    }
+    #debug-panel {
+      position: fixed; bottom: 60px; right: 20px;
+      background: #333; color: #0f0;
+      padding: 15px; border-radius: 8px;
+      font-family: 'Courier New', monospace;
+      font-size: 11px; max-width: 300px;
+      max-height: 300px; overflow-y: auto;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      z-index: 9999; display: none;
+    }
+    #debug-panel.show { display: block; }
     footer {
       text-align: center; padding: 20px;
       font-size: 12px; color: #aaa;
@@ -137,9 +147,8 @@
   </style>
 </head>
 <body>
-
 <header>
-  <img src="logo.png" alt="서정대학교 로고">
+  <img src="https://via.placeholder.com/200x50/11306E/FFFFFF?text=Seojeong+University" alt="서정대학교 로고">
   <h1>E-7-M 유학박람회 응답 현황</h1>
   <p>글로벌섬유패션비즈니스과</p>
   <div id="total-badge">총 응답자: 집계 중...</div>
@@ -150,9 +159,7 @@
     <button class="tab-btn" onclick="switchTab('respondents')">응답자 정보</button>
   </div>
 </header>
-
 <div id="loading-main">데이터 불러오는 중...</div>
-
 <div class="tab-content active" id="tab-analysis">
   <div class="analysis-wrap">
     <div class="analysis-header">
@@ -163,11 +170,9 @@
     <div class="analysis-result" id="analysis-result"></div>
   </div>
 </div>
-
 <div class="tab-content" id="tab-charts">
   <div class="grid" id="chart-grid"></div>
 </div>
-
 <div class="tab-content" id="tab-respondents">
   <div class="lock-wrap" id="lock-screen">
     <h3>내부 전용 페이지</h3>
@@ -194,12 +199,15 @@
   </div>
 </div>
 
+<div id="debug-toggle" onclick="toggleDebug()">🐛 디버그</div>
+<div id="debug-panel"></div>
+
 <footer>© 서정대학교 글로벌섬유패션비즈니스과</footer>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbypiAYN-9rLgQv_lGSE4c6hoJdKskKA9cD3hz-K8LKtpbUbsMs6Vw1Svlr0uCP8dv2b/exec";
+// ⚙️ 설정
+const API_URL = "https://script.google.com/macros/s/AKfycbxTgMZTwlvmA5iziytgvFvy7SgzZgZU7vhjnSleeifJqA7ZOxG8jsmECPBore9VF_Gt/exec";
 const PASSWORD = "sjsuccess";
-
 const COLORS = [
   "#11306E","#E6007E","#1a4fa0","#ff4aa8",
   "#2d6fd4","#ff80c8","#5b92e0","#ffaad8",
@@ -209,6 +217,21 @@ const COLORS = [
 let globalData = null;
 let chartsBuilt = false;
 
+// 🐛 디버그 함수
+function toggleDebug() {
+  const panel = document.getElementById('debug-panel');
+  panel.classList.toggle('show');
+}
+
+function addDebugLog(msg) {
+  const panel = document.getElementById('debug-panel');
+  const log = document.createElement('div');
+  log.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+  panel.appendChild(log);
+  panel.scrollTop = panel.scrollHeight;
+}
+
+// 탭 전환
 function switchTab(tab) {
   document.querySelectorAll('.tab-btn').forEach((b,i) => {
     b.classList.toggle('active', ['analysis','charts','respondents'][i] === tab);
@@ -218,43 +241,65 @@ function switchTab(tab) {
   if (tab === 'charts' && globalData && !chartsBuilt) buildCharts(globalData);
 }
 
+// 데이터 로드
 async function loadData() {
+  addDebugLog("📡 데이터 로딩 중...");
   try {
     const res = await fetch(API_URL);
+    addDebugLog(`응답 상태: ${res.status}`);
+    
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
+    }
+    
     const json = await res.json();
+    
+    if (!json || json.error) {
+      throw new Error(json.error || "데이터 형식 오류");
+    }
+    
+    addDebugLog(`✅ 총 응답자: ${json.total}명`);
+    addDebugLog(`📊 차트 항목: ${json.charts.length}개`);
+    
     globalData = json;
     document.getElementById("total-badge").textContent = `총 응답자: ${json.total}명`;
     document.getElementById("last-updated").textContent =
       `마지막 업데이트: ${new Date().toLocaleString("ko-KR")}`;
     document.getElementById("loading-main").style.display = "none";
+    
     buildCharts(json);
     if (json.respondents) buildRespondentTable(json.respondents);
+    
   } catch(e) {
-    document.getElementById("loading-main").textContent = "데이터 로딩 실패. API URL을 확인해주세요.";
+    addDebugLog(`❌ 오류: ${e.message}`);
+    document.getElementById("loading-main").textContent = "데이터 로딩 실패: " + e.message;
   }
 }
 
+// 차트 구성
 function buildCharts(json) {
   if (chartsBuilt) return;
   chartsBuilt = true;
   const grid = document.getElementById("chart-grid");
   grid.innerHTML = "";
-
+  
   json.charts.forEach(item => {
     const card = document.createElement("div");
     card.className = "card";
+    
     const title = document.createElement("h2");
     title.textContent = item.question;
     card.appendChild(title);
+    
     const wrap = document.createElement("div");
     wrap.className = "chart-wrap";
     const canvas = document.createElement("canvas");
     wrap.appendChild(canvas);
     card.appendChild(wrap);
     grid.appendChild(card);
-
+    
     const total = item.data.reduce((a,b) => a+b, 0);
-
+    
     new Chart(canvas, {
       type: "doughnut",
       data: {
@@ -274,7 +319,7 @@ function buildCharts(json) {
             callbacks: {
               label: ctx => {
                 const pct = total ? ((ctx.parsed / total)*100).toFixed(1) : 0;
-                return ` ${ctx.label}: ${pct}%`;
+                return `${ctx.label}: ${pct}%`;
               }
             }
           }
@@ -306,6 +351,7 @@ function buildCharts(json) {
   });
 }
 
+// 응답자 테이블
 function buildRespondentTable(rows) {
   const tbody = document.getElementById("resp-tbody");
   tbody.innerHTML = "";
@@ -323,53 +369,70 @@ function buildRespondentTable(rows) {
   });
 }
 
+// 비밀번호 확인
 function checkPw() {
   const val = document.getElementById("pw-input").value;
   if (val === PASSWORD) {
     document.getElementById("lock-screen").style.display = "none";
     document.getElementById("respondent-data").style.display = "block";
+    addDebugLog("🔓 응답자 정보 페이지 잠금 해제");
   } else {
     document.getElementById("lock-error").style.display = "block";
+    addDebugLog("❌ 잘못된 비밀번호");
   }
 }
 
+// AI 분석
 async function runAnalysis() {
   if (!globalData) return;
+  
+  addDebugLog("🤖 AI 분석 요청 시작...");
+  
   const btn = document.getElementById("btn-analyze");
   const loading = document.getElementById("analysis-loading");
   const result = document.getElementById("analysis-result");
-
+  
   btn.disabled = true;
   btn.textContent = "분석 중...";
   loading.style.display = "block";
   result.style.display = "none";
-
+  
   try {
     const res = await fetch(API_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "analyze" })
+      body: JSON.stringify({ 
+        action: "analyze",
+        data: globalData 
+      })
     });
+    
+    addDebugLog(`응답 상태: ${res.status}`);
     const data = await res.json();
+    
     if (data.success) {
       result.textContent = data.analysis;
+      addDebugLog("✅ 분석 완료");
     } else {
-      result.textContent = "분석 중 오류가 발생했습니다: " + (data.error || "");
+      result.textContent = `오류: ${data.error}`;
+      addDebugLog(`❌ API 오류: ${data.error}`);
     }
     result.style.display = "block";
+    
   } catch(e) {
-    result.textContent = "분석 요청 실패. 잠시 후 다시 시도해주세요.";
+    result.textContent = "분석 요청 실패: " + e.message;
+    addDebugLog(`❌ 요청 실패: ${e.message}`);
     result.style.display = "block";
   }
-
+  
   loading.style.display = "none";
   btn.disabled = false;
   btn.textContent = "다시 분석";
 }
 
+// 초기 로드 및 주기적 갱신
 loadData();
 setInterval(loadData, 5 * 60 * 1000);
 </script>
-
 </body>
 </html>
