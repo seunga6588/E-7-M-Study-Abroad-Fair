@@ -1,6 +1,397 @@
-function testSheetName() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sheets = ss.getSheets();
-  const names = sheets.map(s => s.getName());
-  SpreadsheetApp.getUi().alert("시트 목록: " + names.join(", "));
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>E-7-M 유학박람회 응답 현황 | 서정대학교</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Noto Sans KR', sans-serif; background: #f4f6fb; color: #222; }
+
+    header {
+      background: #11306E;
+      padding: 24px 24px 0;
+      text-align: center;
+    }
+    header img {
+      height: 48px;
+      margin-bottom: 12px;
+      filter: brightness(0) invert(1);
+    }
+    header h1 { font-size: 20px; color: white; font-weight: 700; margin-bottom: 4px; }
+    header p { font-size: 13px; color: rgba(255,255,255,0.75); margin-bottom: 14px; }
+    #total-badge {
+      display: inline-block;
+      background: #E6007E; color: white;
+      font-weight: 700; font-size: 14px;
+      padding: 6px 20px; border-radius: 20px; margin-bottom: 6px;
+    }
+    #last-updated { font-size: 11px; color: rgba(255,255,255,0.55); margin-bottom: 0; padding-bottom: 0; }
+
+    .tabs {
+      display: flex; justify-content: center;
+      gap: 0; margin-top: 16px;
+    }
+    .tab-btn {
+      background: rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.7);
+      border: none; border-bottom: 3px solid transparent;
+      padding: 12px 28px; font-size: 14px; font-weight: 600;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .tab-btn:hover { background: rgba(255,255,255,0.15); color: white; }
+    .tab-btn.active {
+      background: rgba(255,255,255,0.18);
+      color: white;
+      border-bottom: 3px solid #E6007E;
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .analysis-wrap { max-width: 900px; margin: 0 auto; padding: 28px 24px; }
+    .analysis-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .analysis-header h2 { font-size: 16px; color: #11306E; font-weight: 700; }
+    #btn-analyze {
+      background: #11306E; color: white;
+      border: none; border-radius: 20px;
+      padding: 8px 20px; font-size: 13px; font-weight: 600;
+      cursor: pointer;
+    }
+    #btn-analyze:hover { background: #1a4fa0; }
+    #btn-analyze:disabled { background: #aaa; cursor: not-allowed; }
+    .analysis-loading {
+      text-align: center; padding: 40px;
+      color: #888; font-size: 14px; display: none;
+    }
+    .analysis-result {
+      background: white; border-radius: 14px;
+      padding: 24px; box-shadow: 0 2px 12px rgba(17,48,110,0.08);
+      border-top: 4px solid #E6007E;
+      font-size: 14px; line-height: 1.8; color: #333;
+      white-space: pre-wrap; display: none;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(460px, 1fr));
+      gap: 24px; padding: 28px; max-width: 1200px; margin: 0 auto;
+    }
+    .card {
+      background: white; border-radius: 14px;
+      padding: 22px; box-shadow: 0 2px 12px rgba(17,48,110,0.08);
+      border-top: 4px solid #11306E;
+    }
+    .card h2 {
+      font-size: 13px; color: #11306E;
+      margin-bottom: 16px; font-weight: 700;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #eef0f6;
+    }
+    .chart-wrap { position: relative; height: 270px; }
+
+    .lock-wrap {
+      max-width: 400px; margin: 60px auto; text-align: center;
+      background: white; border-radius: 14px;
+      padding: 40px 32px; box-shadow: 0 2px 12px rgba(17,48,110,0.08);
+    }
+    .lock-wrap h3 { font-size: 16px; color: #11306E; margin-bottom: 8px; font-weight: 700; }
+    .lock-wrap p { font-size: 13px; color: #888; margin-bottom: 20px; }
+    .lock-wrap input {
+      width: 100%; padding: 10px 14px;
+      border: 1.5px solid #dde3f0; border-radius: 8px;
+      font-size: 14px; margin-bottom: 12px; outline: none;
+    }
+    .lock-wrap input:focus { border-color: #11306E; }
+    .lock-wrap button {
+      width: 100%; background: #11306E; color: white;
+      border: none; border-radius: 8px;
+      padding: 11px; font-size: 14px; font-weight: 700;
+      cursor: pointer;
+    }
+    .lock-wrap button:hover { background: #1a4fa0; }
+    .lock-error { color: #E6007E; font-size: 13px; margin-top: 8px; display: none; }
+
+    .respondent-wrap { max-width: 1100px; margin: 0 auto; padding: 28px 24px; }
+    .respondent-wrap h2 { font-size: 15px; color: #11306E; font-weight: 700; margin-bottom: 16px; }
+    .resp-table { width: 100%; border-collapse: collapse; font-size: 13px; background: white;
+      border-radius: 12px; overflow: hidden; box-shadow: 0 2px 12px rgba(17,48,110,0.08); }
+    .resp-table th {
+      background: #11306E; color: white;
+      padding: 12px 14px; text-align: left; font-weight: 600;
+    }
+    .resp-table td { padding: 10px 14px; border-bottom: 1px solid #eef0f6; color: #333; }
+    .resp-table tr:last-child td { border-bottom: none; }
+    .resp-table tr:hover td { background: #f8f9ff; }
+
+    #loading-main { text-align: center; padding: 80px; font-size: 15px; color: #888; }
+    footer {
+      text-align: center; padding: 20px;
+      font-size: 12px; color: #aaa;
+      border-top: 1px solid #e8eaf0; margin-top: 12px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <img src="logo.png" alt="서정대학교 로고">
+  <h1>E-7-M 유학박람회 응답 현황</h1>
+  <p>글로벌섬유패션비즈니스과</p>
+  <div id="total-badge">총 응답자: 집계 중...</div>
+  <div id="last-updated"></div>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('analysis')">AI 분석 요약</button>
+    <button class="tab-btn" onclick="switchTab('charts')">응답 차트</button>
+    <button class="tab-btn" onclick="switchTab('respondents')">응답자 정보</button>
+  </div>
+</header>
+
+<div id="loading-main">데이터 불러오는 중...</div>
+
+<div class="tab-content active" id="tab-analysis">
+  <div class="analysis-wrap">
+    <div class="analysis-header">
+      <h2>문항별 응답 AI 분석</h2>
+      <button id="btn-analyze" onclick="runAnalysis()">분석 실행</button>
+    </div>
+    <div class="analysis-loading" id="analysis-loading">Claude AI가 응답 데이터를 분석하고 있습니다...</div>
+    <div class="analysis-result" id="analysis-result"></div>
+  </div>
+</div>
+
+<div class="tab-content" id="tab-charts">
+  <div class="grid" id="chart-grid"></div>
+</div>
+
+<div class="tab-content" id="tab-respondents">
+  <div class="lock-wrap" id="lock-screen">
+    <h3>내부 전용 페이지</h3>
+    <p>비밀번호를 입력하세요</p>
+    <input type="password" id="pw-input" placeholder="비밀번호 입력" onkeydown="if(event.key==='Enter') checkPw()">
+    <button onclick="checkPw()">확인</button>
+    <div class="lock-error" id="lock-error">비밀번호가 올바르지 않습니다.</div>
+  </div>
+  <div class="respondent-wrap" id="respondent-data" style="display:none">
+    <h2>응답자 정보 (N~R열)</h2>
+    <table class="resp-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>이름</th>
+          <th>이메일</th>
+          <th>WhatsApp</th>
+          <th>편한 연락 시간</th>
+          <th>선호 상담 언어</th>
+        </tr>
+      </thead>
+      <tbody id="resp-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<footer>© 서정대학교 글로벌섬유패션비즈니스과</footer>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbzjwQcvvy6R8-K6hlmp0DKgaFAso35LpetlhEy25AwxJmU-6087u7NHXLaOThIhy0if/exec";
+const PASSWORD = "sjsuccess";
+
+const COLORS = [
+  "#11306E","#E6007E","#1a4fa0","#ff4aa8",
+  "#2d6fd4","#ff80c8","#5b92e0","#ffaad8",
+  "#8db4ed","#ffd0eb","#c2d6f7","#ffe8f5"
+];
+
+let globalData = null;
+let chartsBuilt = false;
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach((b,i) => {
+    b.classList.toggle('active', ['analysis','charts','respondents'][i] === tab);
+  });
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  if (tab === 'charts' && globalData && !chartsBuilt) buildCharts(globalData);
 }
+
+async function loadData() {
+  try {
+    const res = await fetch(API_URL);
+    const json = await res.json();
+    globalData = json;
+    document.getElementById("total-badge").textContent = `총 응답자: ${json.total}명`;
+    document.getElementById("last-updated").textContent =
+      `마지막 업데이트: ${new Date().toLocaleString("ko-KR")}`;
+    document.getElementById("loading-main").style.display = "none";
+    buildCharts(json);
+    if (json.respondents) buildRespondentTable(json.respondents);
+  } catch(e) {
+    document.getElementById("loading-main").textContent = "데이터 로딩 실패. API URL을 확인해주세요.";
+  }
+}
+
+function buildCharts(json) {
+  if (chartsBuilt) return;
+  chartsBuilt = true;
+  const grid = document.getElementById("chart-grid");
+  grid.innerHTML = "";
+
+  json.charts.forEach(item => {
+    const card = document.createElement("div");
+    card.className = "card";
+    const title = document.createElement("h2");
+    title.textContent = item.question;
+    card.appendChild(title);
+    const wrap = document.createElement("div");
+    wrap.className = "chart-wrap";
+    const canvas = document.createElement("canvas");
+    wrap.appendChild(canvas);
+    card.appendChild(wrap);
+    grid.appendChild(card);
+
+    const total = item.data.reduce((a,b) => a+b, 0);
+
+    new Chart(canvas, {
+      type: "doughnut",
+      data: {
+        labels: item.labels.map((l,i) => `${l} (${item.data[i]}명)`),
+        datasets: [{
+          data: item.data,
+          backgroundColor: COLORS.slice(0, item.labels.length),
+          borderWidth: 2, borderColor: "#fff"
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: "right", labels: { font: { size: 11 }, padding: 12, color: "#333" } },
+          tooltip: {
+            callbacks: {
+              label: ctx => {
+                const pct = total ? ((ctx.parsed / total)*100).toFixed(1) : 0;
+                return ` ${ctx.label}: ${pct}%`;
+              }
+            }
+          }
+        }
+      },
+      plugins: [{
+        id: 'pctLabel',
+        afterDatasetDraw(chart) {
+          const { ctx } = chart;
+          chart.data.datasets.forEach((dataset, i) => {
+            const meta = chart.getDatasetMeta(i);
+            meta.data.forEach((arc, idx) => {
+              const val = dataset.data[idx];
+              const pct = total ? ((val/total)*100).toFixed(1) : 0;
+              if (parseFloat(pct) < 4) return;
+              const { x, y } = arc.tooltipPosition();
+              ctx.save();
+              ctx.fillStyle = '#fff';
+              ctx.font = 'bold 11px sans-serif';
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'middle';
+              ctx.fillText(`${pct}%`, x, y);
+              ctx.restore();
+            });
+          });
+        }
+      }]
+    });
+  });
+}
+
+function buildRespondentTable(rows) {
+  const tbody = document.getElementById("resp-tbody");
+  tbody.innerHTML = "";
+  rows.forEach((row, i) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${i+1}</td>
+      <td>${row[0]||''}</td>
+      <td>${row[1]||''}</td>
+      <td>${row[2]||''}</td>
+      <td>${row[3]||''}</td>
+      <td>${row[4]||''}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function checkPw() {
+  const val = document.getElementById("pw-input").value;
+  if (val === PASSWORD) {
+    document.getElementById("lock-screen").style.display = "none";
+    document.getElementById("respondent-data").style.display = "block";
+  } else {
+    document.getElementById("lock-error").style.display = "block";
+  }
+}
+
+async function runAnalysis() {
+  if (!globalData) return;
+  const btn = document.getElementById("btn-analyze");
+  const loading = document.getElementById("analysis-loading");
+  const result = document.getElementById("analysis-result");
+
+  btn.disabled = true;
+  btn.textContent = "분석 중...";
+  loading.style.display = "block";
+  result.style.display = "none";
+
+  const summary = globalData.charts.map(c => {
+    const total = c.data.reduce((a,b)=>a+b,0);
+    const lines = c.labels.map((l,i) =>
+      `  - ${l}: ${c.data[i]}명 (${total?((c.data[i]/total)*100).toFixed(1):0}%)`
+    ).join('\n');
+    return `[${c.question}]\n${lines}`;
+  }).join('\n\n');
+
+  const prompt = `아래는 서정대학교 글로벌섬유패션비즈니스과 E-7-M 유학박람회에서 수집한 설문 응답 데이터입니다. 총 ${globalData.total}명이 응답했습니다.
+
+${summary}
+
+위 데이터를 바탕으로 다음을 한국어로 분석해주세요:
+1. 응답자 특성 요약 (어떤 사람들이 관심을 갖고 있는지)
+2. E-7-M 프로그램에 대한 관심도와 주요 관심 이유
+3. 서정대학교를 알게 된 경로와 관심 이유
+4. 유학 목적 및 입학 희망 시기 분석
+5. 향후 모집 및 홍보 전략에 대한 제언
+
+각 항목을 명확한 소제목과 함께 줄글로 작성해주세요.`;
+
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 1000,
+        messages: [{ role: "user", content: prompt }]
+      })
+    });
+    const data = await res.json();
+    const text = data.content?.map(c => c.text||'').join('') || '분석 결과를 가져오지 못했습니다.';
+    result.textContent = text;
+    result.style.display = "block";
+  } catch(e) {
+    result.textContent = "분석 중 오류가 발생했습니다.";
+    result.style.display = "block";
+  }
+
+  loading.style.display = "none";
+  btn.disabled = false;
+  btn.textContent = "다시 분석";
+}
+
+loadData();
+setInterval(loadData, 5 * 60 * 1000);
+</script>
+
+</body>
+</html>
