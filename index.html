@@ -159,7 +159,7 @@
       <h2>문항별 응답 AI 분석</h2>
       <button id="btn-analyze" onclick="runAnalysis()">분석 실행</button>
     </div>
-    <div class="analysis-loading" id="analysis-loading">Claude AI가 응답 데이터를 분석하고 있습니다...</div>
+    <div class="analysis-loading" id="analysis-loading">Gemini AI가 응답 데이터를 분석하고 있습니다...</div>
     <div class="analysis-result" id="analysis-result"></div>
   </div>
 </div>
@@ -197,7 +197,7 @@
 <footer>© 서정대학교 글로벌섬유패션비즈니스과</footer>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbzjwQcvvy6R8-K6hlmp0DKgaFAso35LpetlhEy25AwxJmU-6087u7NHXLaOThIhy0if/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbypiAYN-9rLgQv_lGSE4c6hoJdKskKA9cD3hz-K8LKtpbUbsMs6Vw1Svlr0uCP8dv2b/exec";
 const PASSWORD = "sjsuccess";
 
 const COLORS = [
@@ -344,43 +344,21 @@ async function runAnalysis() {
   loading.style.display = "block";
   result.style.display = "none";
 
-  const summary = globalData.charts.map(c => {
-    const total = c.data.reduce((a,b)=>a+b,0);
-    const lines = c.labels.map((l,i) =>
-      `  - ${l}: ${c.data[i]}명 (${total?((c.data[i]/total)*100).toFixed(1):0}%)`
-    ).join('\n');
-    return `[${c.question}]\n${lines}`;
-  }).join('\n\n');
-
-  const prompt = `아래는 서정대학교 글로벌섬유패션비즈니스과 E-7-M 유학박람회에서 수집한 설문 응답 데이터입니다. 총 ${globalData.total}명이 응답했습니다.
-
-${summary}
-
-위 데이터를 바탕으로 다음을 한국어로 분석해주세요:
-1. 응답자 특성 요약 (어떤 사람들이 관심을 갖고 있는지)
-2. E-7-M 프로그램에 대한 관심도와 주요 관심 이유
-3. 서정대학교를 알게 된 경로와 관심 이유
-4. 유학 목적 및 입학 희망 시기 분석
-5. 향후 모집 및 홍보 전략에 대한 제언
-
-각 항목을 명확한 소제목과 함께 줄글로 작성해주세요.`;
-
   try {
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
+    const res = await fetch(API_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-6",
-        max_tokens: 1000,
-        messages: [{ role: "user", content: prompt }]
-      })
+      body: JSON.stringify({ action: "analyze" })
     });
     const data = await res.json();
-    const text = data.content?.map(c => c.text||'').join('') || '분석 결과를 가져오지 못했습니다.';
-    result.textContent = text;
+    if (data.success) {
+      result.textContent = data.analysis;
+    } else {
+      result.textContent = "분석 중 오류가 발생했습니다: " + (data.error || "");
+    }
     result.style.display = "block";
   } catch(e) {
-    result.textContent = "분석 중 오류가 발생했습니다.";
+    result.textContent = "분석 요청 실패. 잠시 후 다시 시도해주세요.";
     result.style.display = "block";
   }
 
