@@ -309,3 +309,9 @@ async function runAnalysis() {
   btn.disabled = false;
   btn.textContent = "다시 분석";
 }
+loadData();
+setInterval(loadData, 5 * 60 * 1000);
+</script>
+
+</body>
+</html>
