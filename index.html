@@ -8,7 +8,7 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Noto Sans KR', sans-serif; background: #f4f6fb; color: #222; }
-
+    
     header {
       background: #11306E;
       padding: 28px 24px 20px;
@@ -24,7 +24,7 @@
       font-weight: 700; margin-bottom: 4px;
     }
     header p { font-size: 13px; color: rgba(255,255,255,0.75); }
-
+    
     .badge-wrap { margin-top: 14px; }
     #total-badge {
       display: inline-block;
@@ -37,28 +37,203 @@
       margin-top: 8px;
     }
 
+    /* ==================== 탭 스타일 시작 ==================== */
+    .tabs-container {
+      background: white;
+      padding: 0;
+      border-bottom: 2px solid #e8eaf0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 0;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 28px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 16px 20px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      color: #666;
+      border-bottom: 3px solid transparent;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+      text-align: center;
+    }
+
+    .tab-btn:hover {
+      background: #f8f9fa;
+      color: #11306E;
+    }
+
+    .tab-btn.active {
+      color: #11306E;
+      border-bottom-color: #E6007E;
+    }
+    /* ==================== 탭 스타일 끝 ==================== */
+
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(460px, 1fr));
-      gap: 24px; padding: 28px; max-width: 1200px; margin: 0 auto;
+      gap: 24px; 
+      padding: 28px; 
+      max-width: 1200px; 
+      margin: 0 auto;
     }
+
     .card {
       background: white; border-radius: 14px;
       padding: 22px; box-shadow: 0 2px 12px rgba(17,48,110,0.08);
       border-top: 4px solid #11306E;
     }
+
     .card h2 {
       font-size: 13px; color: #11306E;
       margin-bottom: 16px; font-weight: 700;
       padding-bottom: 10px;
       border-bottom: 1px solid #eef0f6;
     }
+
     .chart-wrap { position: relative; height: 270px; }
 
     #loading {
       text-align: center; padding: 80px;
       font-size: 15px; color: #888;
     }
+
+    /* ==================== AI 분석 탭 스타일 시작 ==================== */
+    .tab-content {
+      display: none;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 28px;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .analysis-section {
+      background: white;
+      border-radius: 14px;
+      padding: 22px;
+      box-shadow: 0 2px 12px rgba(17,48,110,0.08);
+    }
+
+    .analysis-section h2 {
+      font-size: 18px;
+      color: #11306E;
+      margin-bottom: 20px;
+      font-weight: 700;
+    }
+
+    .analysis-buttons {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .analysis-btn {
+      padding: 14px 18px;
+      background: linear-gradient(135deg, #11306E 0%, #E6007E 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .analysis-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(17,48,110,0.3);
+    }
+
+    .analysis-btn:active {
+      transform: translateY(0);
+    }
+
+    .result-container {
+      min-height: 300px;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      border: 1px solid #e8eaf0;
+      margin-top: 20px;
+    }
+
+    .result-container p {
+      color: #999;
+      text-align: center;
+      padding: 60px 20px;
+    }
+
+    .analysis-result {
+      background: white;
+      border-left: 4px solid #E6007E;
+      padding: 20px;
+      border-radius: 8px;
+      line-height: 1.8;
+      color: #333;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    .analysis-result h3 {
+      color: #11306E;
+      margin-bottom: 16px;
+      font-size: 16px;
+    }
+
+    .analysis-result small {
+      display: block;
+      margin-top: 16px;
+      color: #999;
+      border-top: 1px solid #eef0f6;
+      padding-top: 12px;
+    }
+
+    .loading-spinner {
+      text-align: center;
+      padding: 40px;
+    }
+
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #11306E;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 16px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .error-message {
+      background: #ffe6e6;
+      border-left: 4px solid #d32f2f;
+      color: #d32f2f;
+      padding: 16px;
+      border-radius: 8px;
+      margin-top: 16px;
+    }
+    /* ==================== AI 분석 탭 스타일 끝 ==================== */
 
     footer {
       text-align: center; padding: 20px;
@@ -80,14 +255,60 @@
   </div>
 </header>
 
-<div id="loading">📡 데이터 불러오는 중...</div>
-<div class="grid" id="chart-grid" style="display:none"></div>
+<!-- ==================== 탭 네비게이션 시작 ==================== -->
+<div class="tabs-container">
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('statistics')">
+      📊 통계
+    </button>
+    <button class="tab-btn" onclick="switchTab('ai-analysis')">
+      🤖 AI 분석
+    </button>
+  </div>
+</div>
+<!-- ==================== 탭 네비게이션 끝 ==================== -->
+
+<!-- 통계 탭 -->
+<div id="statistics" class="tab-content active">
+  <div id="loading">📡 데이터 불러오는 중...</div>
+  <div class="grid" id="chart-grid" style="display:none"></div>
+</div>
+
+<!-- AI 분석 탭 -->
+<div id="ai-analysis" class="tab-content">
+  <div class="analysis-section">
+    <h2>🤖 AI 분석 (Gemini)</h2>
+    <p style="color: #666; margin-bottom: 20px;">
+      설문 응답 데이터를 AI가 분석하여 인사이트를 제공합니다. 
+      분석 유형을 선택하고 '분석 시작'을 클릭하세요.
+    </p>
+
+    <div class="analysis-buttons">
+      <button class="analysis-btn" onclick="runAIAnalysis('interest_analysis')">
+        📌 관심도 분석
+      </button>
+      <button class="analysis-btn" onclick="runAIAnalysis('student_insights')">
+        👥 학생 특성 분석
+      </button>
+      <button class="analysis-btn" onclick="runAIAnalysis('strategic_recommendations')">
+        🎯 전략 및 개선방안
+      </button>
+      <button class="analysis-btn" onclick="runAIAnalysis('comprehensive')">
+        📊 종합 분석 보고서
+      </button>
+    </div>
+
+    <div id="analysis-result" class="result-container">
+      <p>분석 유형을 선택하고 버튼을 클릭하면 결과가 여기에 표시됩니다.</p>
+    </div>
+  </div>
+</div>
 
 <footer>© 서정대학교 글로벌섬유패션비즈니스과</footer>
 
 <script>
-  const API_URL = "https://script.google.com/macros/s/AKfycbxEDQQctDd_DmQS0klCZZrAQ5vAL1rrBWnAXmAy8I5l358ZVE0PL8InCJPyVASR14S3/exec";
-
+  const API_URL = "https://script.google.com/macros/s/AKfycbzKr8E6d7PnWUwcHZExRECifxW8cQfHxeG_8PLSDEfy8TmRskBViNybLfLPgj1mQeKq/exec";
+  
   // 서정대 네이비·핑크 계열 색상
   const COLORS = [
     "#11306E", "#E6007E",
@@ -98,33 +319,43 @@
     "#c2d6f7", "#ffe8f5"
   ];
 
+  // ==================== 탭 전환 함수 ====================
+  function switchTab(tabName) {
+    // 모든 탭 내용 숨기기
+    const contents = document.querySelectorAll('.tab-content');
+    contents.forEach(content => content.classList.remove('active'));
+
+    // 모든 탭 버튼 비활성화
+    const buttons = document.querySelectorAll('.tab-btn');
+    buttons.forEach(btn => btn.classList.remove('active'));
+
+    // 선택한 탭만 활성화
+    document.getElementById(tabName).classList.add('active');
+    event.target.classList.add('active');
+  }
+
+  // ==================== 통계 탭 함수 ====================
   async function loadData() {
     try {
       const res = await fetch(API_URL);
       const json = await res.json();
-
       document.getElementById("total-badge").textContent = `총 응답자: ${json.total}명`;
       document.getElementById("last-updated").textContent =
         `마지막 업데이트: ${new Date().toLocaleString("ko-KR")}`;
-
       const grid = document.getElementById("chart-grid");
       grid.innerHTML = "";
-
       json.charts.forEach(item => {
         const card = document.createElement("div");
         card.className = "card";
-
         const title = document.createElement("h2");
         title.textContent = item.question;
         card.appendChild(title);
-
         const wrap = document.createElement("div");
         wrap.className = "chart-wrap";
         const canvas = document.createElement("canvas");
         wrap.appendChild(canvas);
         card.appendChild(wrap);
         grid.appendChild(card);
-
         new Chart(canvas, {
           type: "doughnut",
           data: {
@@ -149,7 +380,7 @@
                   label: ctx => {
                     const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
                     const pct = total ? ((ctx.parsed / total) * 100).toFixed(1) : 0;
-                    return ` ${ctx.label}: ${pct}%`;
+                    return `${ctx.label}: ${pct}%`;
                   }
                 }
               }
@@ -157,17 +388,84 @@
           }
         });
       });
-
       document.getElementById("loading").style.display = "none";
       grid.style.display = "grid";
-
     } catch (err) {
       document.getElementById("loading").textContent = "❌ 데이터 로딩 실패. API URL을 확인해주세요.";
     }
   }
 
+  // ==================== AI 분석 함수 ====================
+  function runAIAnalysis(analysisType) {
+    const resultDiv = document.getElementById('analysis-result');
+    
+    // 로딩 상태 표시
+    resultDiv.innerHTML = `
+      <div class="loading-spinner">
+        <div class="spinner"></div>
+        <p>⏳ AI가 분석 중입니다... (30초~1분 소요)</p>
+        <p style="font-size: 12px; color: #999;">
+          분석 내용이 많아서 시간이 걸릴 수 있습니다.
+        </p>
+      </div>
+    `;
+
+    // Google Apps Script 함수 호출
+    google.script.run
+      .withSuccessHandler(function(response) {
+        if (response.success && response.choices) {
+          const content = response.choices[0].message.content;
+          const title = getAnalysisTitle(analysisType);
+          
+          resultDiv.innerHTML = `
+            <div class="analysis-result">
+              <h3>${title}</h3>
+              ${content.replace(/\n/g, '<br>')}
+              <small>✓ 분석 완료: ${response.timestamp}</small>
+            </div>
+          `;
+        } else if (response.error) {
+          resultDiv.innerHTML = `
+            <div class="error-message">
+              <strong>❌ 분석 실패</strong><br>
+              ${response.error}<br>
+              <small>${response.message || ''}</small>
+            </div>
+          `;
+        } else {
+          resultDiv.innerHTML = `
+            <div class="error-message">
+              <strong>❌ 예상치 못한 오류</strong><br>
+              ${JSON.stringify(response)}
+            </div>
+          `;
+        }
+      })
+      .withFailureHandler(function(error) {
+        resultDiv.innerHTML = `
+          <div class="error-message">
+            <strong>❌ 분석 요청 실패</strong><br>
+            ${error}<br>
+            <small>Apps Script URL이 올바른지 확인하세요.</small>
+          </div>
+        `;
+      })
+      .analyzeWithAI(analysisType);
+  }
+
+  function getAnalysisTitle(type) {
+    const titles = {
+      'interest_analysis': '📌 프로그램 관심도 분석',
+      'student_insights': '👥 학생 특성 분석',
+      'strategic_recommendations': '🎯 전략 및 개선방안',
+      'comprehensive': '📊 종합 분석 보고서'
+    };
+    return titles[type] || '분석 결과';
+  }
+
+  // ==================== 초기 로드 ====================
   loadData();
-  setInterval(loadData, 5 * 60 * 1000);
+  setInterval(loadData, 5 * 60 * 1000); // 5분마다 갱신
 </script>
 
 </body>
