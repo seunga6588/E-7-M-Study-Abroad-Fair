@@ -4,529 +4,602 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>E-7-M 유학박람회 응답 현황 | 서정대학교</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Noto Sans KR', sans-serif; background: #f4f6fb; color: #222; }
-    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+      color: #333;
+    }
+
     header {
       background: linear-gradient(135deg, #11306E 0%, #1a4fa0 100%);
-      padding: 24px 24px 0;
+      padding: 40px 20px;
       text-align: center;
-      box-shadow: 0 2px 8px rgba(17,48,110,0.15);
+      box-shadow: 0 4px 20px rgba(17, 48, 110, 0.2);
+      color: white;
     }
-    
-    header img {
-      height: 48px;
-      margin-bottom: 12px;
-      filter: brightness(0) invert(1);
-    }
-    
+
     header h1 {
-      font-size: 20px;
-      color: white;
+      font-size: 28px;
       font-weight: 700;
-      margin-bottom: 4px;
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
     }
-    
+
     header p {
-      font-size: 13px;
-      color: rgba(255,255,255,0.75);
-      margin-bottom: 14px;
-    }
-    
-    #total-badge {
-      display: inline-block;
-      background: #E6007E;
-      color: white;
-      font-weight: 700;
       font-size: 14px;
-      padding: 8px 20px;
+      opacity: 0.9;
+      margin-bottom: 20px;
+    }
+
+    .header-info {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+      font-size: 13px;
+      opacity: 0.9;
+    }
+
+    .badge {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 8px 16px;
       border-radius: 20px;
-      margin-bottom: 6px;
-      box-shadow: 0 2px 8px rgba(230,0,126,0.3);
+      backdrop-filter: blur(10px);
+      font-weight: 600;
     }
-    
-    #last-updated {
-      font-size: 11px;
-      color: rgba(255,255,255,0.6);
-      margin-bottom: 14px;
-    }
-    
+
     .tabs {
       display: flex;
       justify-content: center;
       gap: 0;
-      margin-top: 16px;
+      margin-top: 20px;
+      flex-wrap: wrap;
     }
-    
+
     .tab-btn {
-      background: rgba(255,255,255,0.1);
-      color: rgba(255,255,255,0.7);
+      background: rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.8);
       border: none;
       border-bottom: 3px solid transparent;
-      padding: 12px 28px;
+      padding: 12px 24px;
       font-size: 14px;
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(5px);
     }
-    
+
     .tab-btn:hover {
-      background: rgba(255,255,255,0.15);
+      background: rgba(255, 255, 255, 0.15);
       color: white;
     }
-    
+
     .tab-btn.active {
-      background: rgba(255,255,255,0.18);
+      background: rgba(255, 255, 255, 0.2);
       color: white;
-      border-bottom: 3px solid #E6007E;
+      border-bottom: 3px solid #FFD700;
     }
-    
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
     .tab-content {
       display: none;
+      animation: fadeIn 0.3s ease;
     }
-    
+
     .tab-content.active {
       display: block;
     }
-    
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(460px, 1fr));
-      gap: 24px;
-      padding: 28px;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-    
-    .card {
-      background: white;
-      border-radius: 14px;
-      padding: 22px;
-      box-shadow: 0 2px 12px rgba(17,48,110,0.08);
-      border-top: 4px solid #11306E;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    
-    .card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 16px rgba(17,48,110,0.12);
-    }
-    
-    .card h2 {
-      font-size: 13px;
-      color: #11306E;
-      margin-bottom: 16px;
-      font-weight: 700;
-      padding-bottom: 10px;
-      border-bottom: 1px solid #eef0f6;
-    }
-    
-    .chart-wrap {
-      position: relative;
-      height: 270px;
-    }
-    
-    .lock-wrap {
-      max-width: 400px;
-      margin: 60px auto;
-      text-align: center;
-      background: white;
-      border-radius: 14px;
-      padding: 40px 32px;
-      box-shadow: 0 2px 12px rgba(17,48,110,0.08);
-    }
-    
-    .lock-wrap h3 {
-      font-size: 16px;
-      color: #11306E;
-      margin-bottom: 8px;
-      font-weight: 700;
-    }
-    
-    .lock-wrap p {
-      font-size: 13px;
-      color: #888;
-      margin-bottom: 20px;
-    }
-    
-    .lock-wrap input {
-      width: 100%;
-      padding: 10px 14px;
-      border: 1.5px solid #dde3f0;
-      border-radius: 8px;
-      font-size: 14px;
-      margin-bottom: 12px;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-    
-    .lock-wrap input:focus {
-      border-color: #11306E;
-    }
-    
-    .lock-wrap button {
-      width: 100%;
-      background: #11306E;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      padding: 11px;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    
-    .lock-wrap button:hover {
-      background: #1a4fa0;
-    }
-    
-    .lock-error {
-      color: #E6007E;
-      font-size: 13px;
-      margin-top: 8px;
-      display: none;
-    }
-    
-    .respondent-wrap {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 28px 24px;
-    }
-    
-    .respondent-wrap h2 {
-      font-size: 15px;
-      color: #11306E;
-      font-weight: 700;
-      margin-bottom: 16px;
-    }
-    
-    .resp-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-      background: white;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 2px 12px rgba(17,48,110,0.08);
-    }
-    
-    .resp-table th {
-      background: #11306E;
-      color: white;
-      padding: 12px 14px;
-      text-align: left;
-      font-weight: 600;
-    }
-    
-    .resp-table td {
-      padding: 10px 14px;
-      border-bottom: 1px solid #eef0f6;
-      color: #333;
-    }
-    
-    .resp-table tr:last-child td {
-      border-bottom: none;
-    }
-    
-    .resp-table tr:hover td {
-      background: #f8f9ff;
-    }
-    
-    #loading-main {
-      text-align: center;
-      padding: 80px;
-      font-size: 15px;
-      color: #888;
-    }
-    
-    .loading-spinner {
-      display: inline-block;
-      width: 20px;
-      height: 20px;
-      border: 3px solid #ddd;
-      border-top: 3px solid #11306E;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin-right: 8px;
-    }
-    
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    
-    footer {
-      text-align: center;
-      padding: 20px;
-      font-size: 12px;
-      color: #aaa;
-      border-top: 1px solid #e8eaf0;
-      margin-top: 12px;
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
     }
 
-    .error-message {
-      background: #ffe8e8;
-      color: #c00;
-      padding: 16px;
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+      gap: 24px;
+      margin-top: 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 8px 32px rgba(17, 48, 110, 0.1);
+      border-left: 5px solid #11306E;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(17, 48, 110, 0.15);
+    }
+
+    .card h2 {
+      font-size: 15px;
+      color: #11306E;
+      font-weight: 700;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+
+    .chart-container {
+      position: relative;
+      height: 300px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    canvas {
+      max-height: 300px !important;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 80px 20px;
+      color: #666;
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      border: 4px solid #ddd;
+      border-top: 4px solid #11306E;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 16px;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    .error {
+      background: #fee;
+      color: #c33;
+      padding: 20px;
       border-radius: 8px;
       margin: 20px;
       text-align: center;
+      border-left: 4px solid #c33;
       font-weight: 500;
+      line-height: 1.6;
+    }
+
+    .error code {
+      background: #fdd;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: monospace;
+      font-size: 12px;
+    }
+
+    .table-container {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(17, 48, 110, 0.1);
+      margin-top: 20px;
+    }
+
+    .table-header {
+      background: #11306E;
+      color: white;
+      padding: 20px;
+      font-weight: 700;
+      font-size: 16px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th {
+      background: #11306E;
+      color: white;
+      padding: 12px 16px;
+      text-align: left;
+      font-weight: 600;
+    }
+
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid #eee;
+    }
+
+    tr:hover {
+      background: #f8f9fb;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    footer {
+      text-align: center;
+      padding: 30px 20px;
+      color: #666;
+      font-size: 12px;
+      border-top: 1px solid rgba(0, 0, 0, 0.1);
+      margin-top: 40px;
+    }
+
+    .no-data {
+      text-align: center;
+      padding: 40px;
+      color: #999;
+    }
+
+    .refresh-btn {
+      background: #11306E;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 13px;
+      transition: all 0.3s ease;
+      margin-top: 20px;
+    }
+
+    .refresh-btn:hover {
+      background: #1a4fa0;
+      transform: translateY(-2px);
+    }
+
+    .refresh-btn:active {
+      transform: translateY(0);
+    }
+
+    @media (max-width: 768px) {
+      header h1 {
+        font-size: 20px;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .tabs {
+        gap: 0;
+      }
+
+      .tab-btn {
+        padding: 10px 16px;
+        font-size: 12px;
+      }
+
+      table {
+        font-size: 11px;
+      }
+
+      td, th {
+        padding: 8px 12px;
+      }
     }
   </style>
 </head>
 <body>
 
-<header>
-  <img src="https://via.placeholder.com/200x50/11306E/FFFFFF?text=Seojeong+University" alt="서정대학교 로고">
-  <h1>E-7-M 유학박람회 응답 현황</h1>
-  <p>글로벌섬유패션비즈니스과</p>
-  <div id="total-badge">총 응답자: 집계 중...</div>
-  <div id="last-updated"></div>
-  <div class="tabs">
-    <button class="tab-btn active" onclick="switchTab('charts')">📊 응답 차트</button>
-    <button class="tab-btn" onclick="switchTab('respondents')">👥 응답자 정보</button>
+  <header>
+    <h1>📊 E-7-M 유학박람회 응답 현황</h1>
+    <p>서정대학교 글로벌섬유패션비즈니스과</p>
+    <div class="header-info">
+      <div class="badge">📈 총 응답자: <span id="total-count">집계 중...</span>명</div>
+      <div class="badge">⏰ 마지막 업데이트: <span id="last-update">집계 중...</span></div>
+    </div>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="showTab('charts')">📊 응답 분석</button>
+      <button class="tab-btn" onclick="showTab('data')">📋 응답자 정보</button>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- 차트 탭 -->
+    <div class="tab-content active" id="tab-charts">
+      <div id="loading-charts" class="loading">
+        <div class="loading-spinner"></div>
+        <p>📊 데이터를 불러오는 중입니다...</p>
+      </div>
+      <div id="charts-grid" class="grid" style="display:none;"></div>
+    </div>
+
+    <!-- 데이터 탭 -->
+    <div class="tab-content" id="tab-data">
+      <div id="data-content" class="loading">
+        <div class="loading-spinner"></div>
+        <p>📋 응답자 정보를 불러오는 중입니다...</p>
+      </div>
+    </div>
   </div>
-</header>
 
-<!-- 로딩 상태 -->
-<div id="loading-main">
-  <div class="loading-spinner"></div>
-  데이터 불러오는 중...
-</div>
-
-<!-- 차트 탭 -->
-<div class="tab-content active" id="tab-charts">
-  <div class="grid" id="chart-grid"></div>
-</div>
-
-<!-- 응답자 정보 탭 -->
-<div class="tab-content" id="tab-respondents">
-  <div class="lock-wrap" id="lock-screen">
-    <h3>🔒 내부 전용 페이지</h3>
-    <p>응답자 정보를 보려면 비밀번호를 입력하세요</p>
-    <input type="password" id="pw-input" placeholder="비밀번호 입력" onkeydown="if(event.key==='Enter') checkPw()">
-    <button onclick="checkPw()">확인</button>
-    <div class="lock-error" id="lock-error">❌ 비밀번호가 올바르지 않습니다.</div>
+  <div class="container" style="text-align: center;">
+    <button class="refresh-btn" onclick="loadData()">🔄 수동 새로고침</button>
   </div>
-  <div class="respondent-wrap" id="respondent-data" style="display:none">
-    <h2>📋 응답자 정보 (총 <span id="resp-count">0</span>명)</h2>
-    <table class="resp-table">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>이름</th>
-          <th>이메일</th>
-          <th>WhatsApp</th>
-          <th>편한 연락 시간</th>
-          <th>선호 상담 언어</th>
-        </tr>
-      </thead>
-      <tbody id="resp-tbody"></tbody>
-    </table>
-  </div>
-</div>
 
-<footer>© 2024 서정대학교 글로벌섬유패션비즈니스과</footer>
+  <footer>
+    © 2024 서정대학교 글로벌섬유패션비즈니스과 | 
+    실시간 데이터 자동 업데이트 (5분 간격)
+  </footer>
 
-<script>
-// ✅ 새 Apps Script 배포 URL
-const API_URL = "https://script.google.com/macros/s/AKfycbwxbgNeCXNbxYiCXlv8utXGjzd31UgyWPn0agXnn6nGV__oYwYzbpIxYfHS-GYtwkXy/exec";
+  <script>
+    // ==================== 설정 ====================
+    // ✅ 당신의 Apps Script 배포 URL (이미 설정됨!)
+    const API_URL = "https://script.google.com/macros/s/AKfycbw9lJWUn_eLEn9bFIvBBbhNZwEJnLi5J-1aqKQfpqsCwYItcenE_Gakq1SQQ5uOSeWv/exec";
 
-// 설정
-const PASSWORD = "sjsuccess";
-const COLORS = [
-  "#11306E", "#E6007E", "#1a4fa0", "#ff4aa8",
-  "#2d6fd4", "#ff80c8", "#5b92e0", "#ffaad8",
-  "#8db4ed", "#ffd0eb", "#c2d6f7", "#ffe8f5"
-];
+    const COLORS = [
+      '#11306E', '#E6007E', '#1a4fa0', '#FF6B9D',
+      '#2d6fd4', '#FF1493', '#5b92e0', '#FFB6D9',
+      '#8db4ed', '#FFD700', '#c2d6f7', '#FFA500',
+      '#4169E1', '#FF69B4', '#87CEEB', '#FF8C00',
+      '#9370DB', '#00CED1', '#32CD32', '#FF4500'
+    ];
 
-// 상태
-let globalData = null;
-let chartsBuilt = false;
+    // ==================== 상태 관리 ====================
+    let globalData = null;
+    let charts = {};
+    let autoRefreshInterval = null;
 
-/**
- * 탭 전환
- */
-function switchTab(tab) {
-  // 탭 버튼 활성화
-  document.querySelectorAll('.tab-btn').forEach((b, i) => {
-    b.classList.toggle('active', ['charts', 'respondents'][i] === tab);
-  });
+    // ==================== 탭 전환 ====================
+    function showTab(tab) {
+      document.querySelectorAll('.tab-content').forEach(el => {
+        el.classList.remove('active');
+      });
+      document.querySelectorAll('.tab-btn').forEach(el => {
+        el.classList.remove('active');
+      });
 
-  // 탭 콘텐츠 표시
-  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-  document.getElementById('tab-' + tab).classList.add('active');
-
-  // 차트 빌드
-  if (tab === 'charts' && globalData && !chartsBuilt) {
-    buildCharts(globalData);
-  }
-}
-
-/**
- * 데이터 로드
- */
-async function loadData() {
-  try {
-    console.log("📡 데이터 로딩 중...");
-    
-    const res = await fetch(API_URL);
-
-    if (!res.ok) {
-      throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+      if (tab === 'charts') {
+        document.getElementById('tab-charts').classList.add('active');
+        document.querySelectorAll('.tab-btn')[0].classList.add('active');
+      } else {
+        document.getElementById('tab-data').classList.add('active');
+        document.querySelectorAll('.tab-btn')[1].classList.add('active');
+      }
     }
 
-    const json = await res.json();
+    // ==================== 데이터 로드 ====================
+    async function loadData() {
+      try {
+        const now = new Date().toLocaleTimeString('ko-KR');
+        console.log(`📡 데이터 로딩 중... (${now})`);
 
-    if (!json.success) {
-      throw new Error(json.error || "데이터 로딩 실패");
+        const response = await fetch(API_URL);
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const json = await response.json();
+
+        if (!json.success) {
+          throw new Error(json.error || '데이터 로딩 실패');
+        }
+
+        console.log('✅ 데이터 로드 성공', json);
+
+        globalData = json;
+
+        // UI 업데이트
+        document.getElementById('total-count').textContent = json.total;
+        document.getElementById('last-update').textContent = 
+          new Date(json.timestamp).toLocaleString('ko-KR');
+
+        // 차트 생성
+        renderCharts(json);
+
+        // 데이터 테이블 생성
+        renderDataTable(json);
+
+      } catch (error) {
+        console.error('❌ 오류:', error);
+        const errorMsg = `
+          ⚠️ <strong>데이터 로딩 실패</strong><br><br>
+          <strong>오류:</strong> ${error.message}<br><br>
+          <strong>✅ 해결 방법:</strong><br>
+          1. Apps Script 배포 URL 확인<br>
+          2. Google Sheet 공유 설정 확인<br>
+          3. <code>설문지 응답 시트1</code> 시트명 확인<br>
+          4. 브라우저 개발자 도구 (F12) 콘솔 확인
+        `;
+        
+        document.getElementById('loading-charts').innerHTML = 
+          `<div class="error">${errorMsg}</div>`;
+        document.getElementById('data-content').innerHTML = 
+          `<div class="error">${errorMsg}</div>`;
+      }
     }
 
-    console.log("✅ 데이터 로드 성공", json);
+    // ==================== 차트 렌더링 ====================
+    function renderCharts(data) {
+      const grid = document.getElementById('charts-grid');
+      const loading = document.getElementById('loading-charts');
 
-    globalData = json;
-    
-    // UI 업데이트
-    document.getElementById("total-badge").textContent = `총 응답자: ${json.total}명`;
-    document.getElementById("last-updated").textContent = 
-      `마지막 업데이트: ${new Date(json.timestamp).toLocaleString("ko-KR")}`;
-    document.getElementById("loading-main").style.display = "none";
+      // 기존 차트 삭제
+      Object.values(charts).forEach(chart => chart.destroy());
+      charts = {};
 
-    // 차트 빌드
-    buildCharts(json);
-    
-    // 응답자 정보 빌드
-    if (json.respondents && json.respondents.length > 0) {
-      buildRespondentTable(json.respondents);
-    }
+      grid.innerHTML = '';
 
-  } catch(e) {
-    console.error("❌ 오류:", e);
-    document.getElementById("loading-main").innerHTML = 
-      `<div class="error-message">❌ 데이터 로딩 실패<br>${e.message}</div>`;
-  }
-}
+      if (!data.charts || data.charts.length === 0) {
+        loading.innerHTML = '<div class="no-data">📊 차트 데이터가 없습니다.</div>';
+        return;
+      }
 
-/**
- * 차트 빌드
- */
-function buildCharts(json) {
-  if (chartsBuilt) return;
-  chartsBuilt = true;
+      data.charts.forEach((item, idx) => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <h2>${item.question}</h2>
+          <div class="chart-container">
+            <canvas id="chart-${idx}"></canvas>
+          </div>
+        `;
+        grid.appendChild(card);
 
-  const grid = document.getElementById("chart-grid");
-  grid.innerHTML = "";
+        const ctx = document.getElementById(`chart-${idx}`).getContext('2d');
+        const total = item.data.reduce((a, b) => a + b, 0);
 
-  json.charts.forEach(item => {
-    // 카드 생성
-    const card = document.createElement("div");
-    card.className = "card";
-
-    // 제목
-    const title = document.createElement("h2");
-    title.textContent = item.question;
-    card.appendChild(title);
-
-    // 차트 래퍼
-    const wrap = document.createElement("div");
-    wrap.className = "chart-wrap";
-    const canvas = document.createElement("canvas");
-    wrap.appendChild(canvas);
-    card.appendChild(wrap);
-    grid.appendChild(card);
-
-    // 합계
-    const total = item.data.reduce((a, b) => a + b, 0);
-
-    // Chart.js 렌더링
-    new Chart(canvas, {
-      type: "doughnut",
-      data: {
-        labels: item.labels.map((l, i) => `${l} (${item.data[i]}명)`),
-        datasets: [{
-          data: item.data,
-          backgroundColor: COLORS.slice(0, item.labels.length),
-          borderWidth: 2,
-          borderColor: "#fff"
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            position: "right",
-            labels: {
-              font: { size: 11 },
-              padding: 12,
-              color: "#333"
-            }
+        charts[idx] = new Chart(ctx, {
+          type: 'doughnut',
+          data: {
+            labels: item.labels.map((l, i) => `${l} (${item.data[i]}명)`),
+            datasets: [{
+              data: item.data,
+              backgroundColor: COLORS.slice(0, item.labels.length),
+              borderColor: '#fff',
+              borderWidth: 2
+            }]
           },
-          tooltip: {
-            callbacks: {
-              label: ctx => {
-                const pct = total > 0 ? ((ctx.parsed / total) * 100).toFixed(1) : 0;
-                return `${ctx.label}: ${pct}%`;
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            layout: {
+              padding: 0
+            },
+            plugins: {
+              legend: {
+                position: 'bottom',
+                labels: {
+                  font: {
+                    size: 12,
+                    weight: '600'
+                  },
+                  padding: 15,
+                  usePointStyle: true,
+                  color: '#333'
+                }
+              },
+              tooltip: {
+                backgroundColor: 'rgba(0,0,0,0.85)',
+                padding: 14,
+                titleFont: {
+                  size: 13,
+                  weight: 'bold'
+                },
+                bodyFont: {
+                  size: 12
+                },
+                borderColor: 'rgba(255,255,255,0.2)',
+                borderWidth: 1,
+                callbacks: {
+                  title: function(context) {
+                    return context[0].label.split('(')[0].trim();
+                  },
+                  label: function(context) {
+                    const value = context.parsed || 0;
+                    const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : '0';
+                    return `응답: ${value}명 (${percentage}%)`;
+                  }
+                }
               }
             }
           }
-        }
+        });
+      });
+
+      loading.style.display = 'none';
+      grid.style.display = 'grid';
+    }
+
+    // ==================== 데이터 테이블 ====================
+    function renderDataTable(data) {
+      const container = document.getElementById('data-content');
+
+      if (!data.respondents || data.respondents.length === 0) {
+        container.innerHTML = '<div class="no-data">📋 응답자 데이터가 없습니다.</div>';
+        return;
+      }
+
+      let html = `
+        <div class="table-container">
+          <div class="table-header">
+            👥 응답자 정보 (총 ${data.respondents.length}명)
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th style="width:50px;">#</th>
+                <th>이름</th>
+                <th>응답자 유형</th>
+                <th>현재 학력/상태</th>
+                <th>한국어 능력</th>
+                <th>E-7-M 관심도</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
+
+      data.respondents.forEach((row, i) => {
+        html += `
+          <tr>
+            <td>${i + 1}</td>
+            <td>${row[0] || '-'}</td>
+            <td>${row[1] || '-'}</td>
+            <td>${row[2] || '-'}</td>
+            <td>${row[3] || '-'}</td>
+            <td>${row[4] || '-'}</td>
+          </tr>
+        `;
+      });
+
+      html += '</tbody></table></div>';
+      container.innerHTML = html;
+    }
+
+    // ==================== 초기화 ====================
+    window.addEventListener('load', () => {
+      console.log('🚀 페이지 로드 완료');
+      console.log(`📡 API URL: ${API_URL}`);
+      
+      // 초기 데이터 로드
+      loadData();
+
+      // 5분마다 자동 새로고침
+      autoRefreshInterval = setInterval(() => {
+        console.log('🔄 자동 새로고침...');
+        loadData();
+      }, 5 * 60 * 1000);
+    });
+
+    // 페이지 종료 시 타이머 정리
+    window.addEventListener('beforeunload', () => {
+      if (autoRefreshInterval) {
+        clearInterval(autoRefreshInterval);
       }
     });
-  });
-}
-
-/**
- * 응답자 정보 테이블 빌드
- */
-function buildRespondentTable(rows) {
-  const tbody = document.getElementById("resp-tbody");
-  const countSpan = document.getElementById("resp-count");
-  
-  tbody.innerHTML = "";
-  countSpan.textContent = rows.length;
-
-  rows.forEach((row, i) => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${i + 1}</td>
-      <td>${row[0] || '-'}</td>
-      <td>${row[1] || '-'}</td>
-      <td>${row[2] || '-'}</td>
-      <td>${row[3] || '-'}</td>
-      <td>${row[4] || '-'}</td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
-
-/**
- * 비밀번호 확인
- */
-function checkPw() {
-  const val = document.getElementById("pw-input").value;
-  
-  if (val === PASSWORD) {
-    document.getElementById("lock-screen").style.display = "none";
-    document.getElementById("respondent-data").style.display = "block";
-    console.log("🔓 응답자 정보 잠금 해제");
-  } else {
-    document.getElementById("lock-error").style.display = "block";
-    document.getElementById("pw-input").value = "";
-    console.log("❌ 잘못된 비밀번호");
-  }
-}
-
-// 초기 로드
-loadData();
-
-// 5분마다 자동 새로고침
-setInterval(loadData, 5 * 60 * 1000);
-</script>
+  </script>
 
 </body>
 </html>
