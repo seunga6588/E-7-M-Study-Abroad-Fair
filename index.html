@@ -8,464 +8,309 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Noto Sans KR', sans-serif; background: #f4f6fb; color: #222; }
-    
-    header {
-      background: #11306E
-      padding: 28px 24px 20px;
-      text-align: center;
-    }
-    header img {
-      height: 52px;
-      margin-bottom: 14px;
-      filter: brightness(0) invert(1); /* 로고 흰색으로 */
-    }
-    header h1 {
-      font-size: 20px; color: white;
-      font-weight: 700; margin-bottom: 4px;
-    }
-    header p { font-size: 13px; color: rgba(255,255,255,0.75); }
-    
-    .badge-wrap { margin-top: 14px; }
+    header { background: #11306E; padding: 24px 24px 0; text-align: center; }
+    header img { height: 48px; margin-bottom: 12px; filter: brightness(0) invert(1); }
+    header h1 { font-size: 20px; color: white; font-weight: 700; margin-bottom: 4px; }
+    header p { font-size: 13px; color: rgba(255,255,255,0.75); margin-bottom: 14px; }
     #total-badge {
-      display: inline-block;
-      background: #E6007E; color: white;
-      font-weight: 700; font-size: 15px;
-      padding: 7px 24px; border-radius: 24px;
+      display: inline-block; background: #E6007E; color: white;
+      font-weight: 700; font-size: 14px; padding: 6px 20px;
+      border-radius: 20px; margin-bottom: 6px;
     }
-    #last-updated {
-      font-size: 11px; color: rgba(255,255,255,0.6);
-      margin-top: 8px;
-    }
-
-    /* ==================== 탭 스타일 시작 ==================== */
-    .tabs-container {
-      background: white;
-      padding: 0;
-      border-bottom: 2px solid #e8eaf0;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    }
-
-    .tabs {
-      display: flex;
-      gap: 0;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 28px;
-    }
-
+    #last-updated { font-size: 11px; color: rgba(255,255,255,0.55); }
+    .tabs { display: flex; justify-content: center; margin-top: 16px; }
     .tab-btn {
-      flex: 1;
-      padding: 16px 20px;
-      border: none;
-      background: none;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 600;
-      color: #666;
-      border-bottom: 3px solid transparent;
-      transition: all 0.3s ease;
-      white-space: nowrap;
-      text-align: center;
+      background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.7);
+      border: none; border-bottom: 3px solid transparent;
+      padding: 12px 28px; font-size: 14px; font-weight: 600;
+      cursor: pointer; transition: all 0.2s;
     }
-
-    .tab-btn:hover {
-      background: #f8f9fa;
-      color: #11306E;
+    .tab-btn:hover { background: rgba(255,255,255,0.15); color: white; }
+    .tab-btn.active { background: rgba(255,255,255,0.18); color: white; border-bottom: 3px solid #E6007E; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .analysis-wrap { max-width: 900px; margin: 0 auto; padding: 28px 24px; }
+    .analysis-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+    .analysis-header h2 { font-size: 16px; color: #11306E; font-weight: 700; }
+    #btn-analyze {
+      background: #11306E; color: white; border: none; border-radius: 20px;
+      padding: 8px 20px; font-size: 13px; font-weight: 600; cursor: pointer;
     }
-
-    .tab-btn.active {
-      color: #11306E;
-      border-bottom-color: #E6007E;
+    #btn-analyze:hover { background: #1a4fa0; }
+    #btn-analyze:disabled { background: #aaa; cursor: not-allowed; }
+    .analysis-loading { text-align: center; padding: 40px; color: #888; font-size: 14px; display: none; }
+    .analysis-result {
+      background: white; border-radius: 14px; padding: 24px;
+      box-shadow: 0 2px 12px rgba(17,48,110,0.08); border-top: 4px solid #E6007E;
+      font-size: 14px; line-height: 1.8; color: #333; white-space: pre-wrap; display: none;
     }
-    /* ==================== 탭 스타일 끝 ==================== */
-
     .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(460px, 1fr));
-      gap: 24px; 
-      padding: 28px; 
-      max-width: 1200px; 
-      margin: 0 auto;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(460px, 1fr));
+      gap: 24px; padding: 28px; max-width: 1200px; margin: 0 auto;
     }
-
     .card {
-      background: white; border-radius: 14px;
-      padding: 22px; box-shadow: 0 2px 12px rgba(17,48,110,0.08);
-      border-top: 4px solid #11306E;
+      background: white; border-radius: 14px; padding: 22px;
+      box-shadow: 0 2px 12px rgba(17,48,110,0.08); border-top: 4px solid #11306E;
     }
-
     .card h2 {
-      font-size: 13px; color: #11306E;
-      margin-bottom: 16px; font-weight: 700;
-      padding-bottom: 10px;
-      border-bottom: 1px solid #eef0f6;
+      font-size: 13px; color: #11306E; margin-bottom: 16px; font-weight: 700;
+      padding-bottom: 10px; border-bottom: 1px solid #eef0f6;
     }
-
     .chart-wrap { position: relative; height: 270px; }
-
-    #loading {
-      text-align: center; padding: 80px;
-      font-size: 15px; color: #888;
-    }
-
-    /* ==================== AI 분석 탭 스타일 시작 ==================== */
-    .tab-content {
-      display: none;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 28px;
-    }
-
-    .tab-content.active {
-      display: block;
-    }
-
-    .analysis-section {
-      background: white;
-      border-radius: 14px;
-      padding: 22px;
+    .lock-wrap {
+      max-width: 400px; margin: 60px auto; text-align: center;
+      background: white; border-radius: 14px; padding: 40px 32px;
       box-shadow: 0 2px 12px rgba(17,48,110,0.08);
     }
-
-    .analysis-section h2 {
-      font-size: 18px;
-      color: #11306E;
-      margin-bottom: 20px;
-      font-weight: 700;
+    .lock-wrap h3 { font-size: 16px; color: #11306E; margin-bottom: 8px; font-weight: 700; }
+    .lock-wrap p { font-size: 13px; color: #888; margin-bottom: 20px; }
+    .lock-wrap input {
+      width: 100%; padding: 10px 14px; border: 1.5px solid #dde3f0;
+      border-radius: 8px; font-size: 14px; margin-bottom: 12px; outline: none;
     }
-
-    .analysis-buttons {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 12px;
-      margin-bottom: 24px;
+    .lock-wrap input:focus { border-color: #11306E; }
+    .lock-wrap button {
+      width: 100%; background: #11306E; color: white; border: none;
+      border-radius: 8px; padding: 11px; font-size: 14px; font-weight: 700; cursor: pointer;
     }
-
-    .analysis-btn {
-      padding: 14px 18px;
-      background: linear-gradient(135deg, #11306E 0%, #E6007E 100%);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: 600;
-      transition: transform 0.2s, box-shadow 0.2s;
+    .lock-wrap button:hover { background: #1a4fa0; }
+    .lock-error { color: #E6007E; font-size: 13px; margin-top: 8px; display: none; }
+    .respondent-wrap { max-width: 1100px; margin: 0 auto; padding: 28px 24px; }
+    .respondent-wrap h2 { font-size: 15px; color: #11306E; font-weight: 700; margin-bottom: 16px; }
+    .resp-table {
+      width: 100%; border-collapse: collapse; font-size: 13px; background: white;
+      border-radius: 12px; overflow: hidden; box-shadow: 0 2px 12px rgba(17,48,110,0.08);
     }
-
-    .analysis-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(17,48,110,0.3);
-    }
-
-    .analysis-btn:active {
-      transform: translateY(0);
-    }
-
-    .result-container {
-      min-height: 300px;
-      padding: 20px;
-      background: #f8f9fa;
-      border-radius: 8px;
-      border: 1px solid #e8eaf0;
-      margin-top: 20px;
-    }
-
-    .result-container p {
-      color: #999;
-      text-align: center;
-      padding: 60px 20px;
-    }
-
-    .analysis-result {
-      background: white;
-      border-left: 4px solid #E6007E;
-      padding: 20px;
-      border-radius: 8px;
-      line-height: 1.8;
-      color: #333;
-      white-space: pre-wrap;
-      word-wrap: break-word;
-    }
-
-    .analysis-result h3 {
-      color: #11306E;
-      margin-bottom: 16px;
-      font-size: 16px;
-    }
-
-    .analysis-result small {
-      display: block;
-      margin-top: 16px;
-      color: #999;
-      border-top: 1px solid #eef0f6;
-      padding-top: 12px;
-    }
-
-    .loading-spinner {
-      text-align: center;
-      padding: 40px;
-    }
-
-    .spinner {
-      border: 4px solid #f3f3f3;
-      border-top: 4px solid #11306E;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 16px;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    .error-message {
-      background: #ffe6e6;
-      border-left: 4px solid #d32f2f;
-      color: #d32f2f;
-      padding: 16px;
-      border-radius: 8px;
-      margin-top: 16px;
-    }
-    /* ==================== AI 분석 탭 스타일 끝 ==================== */
-
-    footer {
-      text-align: center; padding: 20px;
-      font-size: 12px; color: #aaa;
-      border-top: 1px solid #e8eaf0;
-      margin-top: 12px;
-    }
+    .resp-table th { background: #11306E; color: white; padding: 12px 14px; text-align: left; font-weight: 600; }
+    .resp-table td { padding: 10px 14px; border-bottom: 1px solid #eef0f6; color: #333; }
+    .resp-table tr:last-child td { border-bottom: none; }
+    .resp-table tr:hover td { background: #f8f9ff; }
+    #loading-main { text-align: center; padding: 80px; font-size: 15px; color: #888; }
+    footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; border-top: 1px solid #e8eaf0; margin-top: 12px; }
   </style>
 </head>
 <body>
 
 <header>
-  <img src="시그니처_좌우조합_기본형_국문.png" alt="서정대학교 로고">
-  <h1>📊 E-7-M 유학박람회 응답 현황</h1>
+  <img src="logo.png" alt="서정대학교 로고">
+  <h1>E-7-M 유학박람회 응답 현황</h1>
   <p>글로벌섬유패션비즈니스과</p>
-  <div class="badge-wrap">
-    <div id="total-badge">총 응답자: 집계 중...</div>
-    <div id="last-updated"></div>
+  <div id="total-badge">총 응답자: 집계 중...</div>
+  <div id="last-updated"></div>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('analysis')">AI 분석 요약</button>
+    <button class="tab-btn" onclick="switchTab('charts')">응답 차트</button>
+    <button class="tab-btn" onclick="switchTab('respondents')">응답자 정보</button>
   </div>
 </header>
 
-<!-- ==================== 탭 네비게이션 시작 ==================== -->
-<div class="tabs-container">
-  <div class="tabs">
-    <button class="tab-btn active" onclick="switchTab('statistics')">
-      📊 통계
-    </button>
-    <button class="tab-btn" onclick="switchTab('ai-analysis')">
-      🤖 AI 분석
-    </button>
+<div id="loading-main">데이터 불러오는 중...</div>
+
+<div class="tab-content active" id="tab-analysis">
+  <div class="analysis-wrap">
+    <div class="analysis-header">
+      <h2>문항별 응답 AI 분석</h2>
+      <button id="btn-analyze" onclick="runAnalysis()">분석 실행</button>
+    </div>
+    <div class="analysis-loading" id="analysis-loading">Gemini AI가 응답 데이터를 분석하고 있습니다...</div>
+    <div class="analysis-result" id="analysis-result"></div>
   </div>
 </div>
-<!-- ==================== 탭 네비게이션 끝 ==================== -->
 
-<!-- 통계 탭 -->
-<div id="statistics" class="tab-content active">
-  <div id="loading">📡 데이터 불러오는 중...</div>
-  <div class="grid" id="chart-grid" style="display:none"></div>
+<div class="tab-content" id="tab-charts">
+  <div class="grid" id="chart-grid"></div>
 </div>
 
-<!-- AI 분석 탭 -->
-<div id="ai-analysis" class="tab-content">
-  <div class="analysis-section">
-    <h2>🤖 AI 분석 (Gemini)</h2>
-    <p style="color: #666; margin-bottom: 20px;">
-      설문 응답 데이터를 AI가 분석하여 인사이트를 제공합니다. 
-      분석 유형을 선택하고 '분석 시작'을 클릭하세요.
-    </p>
-
-    <div class="analysis-buttons">
-      <button class="analysis-btn" onclick="runAIAnalysis('interest_analysis')">
-        📌 관심도 분석
-      </button>
-      <button class="analysis-btn" onclick="runAIAnalysis('student_insights')">
-        👥 학생 특성 분석
-      </button>
-      <button class="analysis-btn" onclick="runAIAnalysis('strategic_recommendations')">
-        🎯 전략 및 개선방안
-      </button>
-      <button class="analysis-btn" onclick="runAIAnalysis('comprehensive')">
-        📊 종합 분석 보고서
-      </button>
-    </div>
-
-    <div id="analysis-result" class="result-container">
-      <p>분석 유형을 선택하고 버튼을 클릭하면 결과가 여기에 표시됩니다.</p>
-    </div>
+<div class="tab-content" id="tab-respondents">
+  <div class="lock-wrap" id="lock-screen">
+    <h3>내부 전용 페이지</h3>
+    <p>비밀번호를 입력하세요</p>
+    <input type="password" id="pw-input" placeholder="비밀번호 입력" onkeydown="if(event.key==='Enter') checkPw()">
+    <button onclick="checkPw()">확인</button>
+    <div class="lock-error" id="lock-error">비밀번호가 올바르지 않습니다.</div>
+  </div>
+  <div class="respondent-wrap" id="respondent-data" style="display:none">
+    <h2>응답자 정보 (N~R열)</h2>
+    <table class="resp-table">
+      <thead>
+        <tr>
+          <th>#</th><th>이름</th><th>이메일</th><th>WhatsApp</th><th>편한 연락 시간</th><th>선호 상담 언어</th>
+        </tr>
+      </thead>
+      <tbody id="resp-tbody"></tbody>
+    </table>
   </div>
 </div>
 
 <footer>© 서정대학교 글로벌섬유패션비즈니스과</footer>
 
 <script>
-  const API_URL = "https://script.google.com/macros/s/AKfycbx-ywJKtqd8tcSYJOL54GqCgSoXBJi7nLUYwU3QEk4DbEIgKioO6RyCrrhBHWIvFggo/exec";
-  
-  // 서정대 네이비·핑크 계열 색상
-  const COLORS = [
-    "#11306E", "#E6007E",
-    "#1a4fa0", "#ff4aa8",
-    "#2d6fd4", "#ff80c8",
-    "#5b92e0", "#ffaad8",
-    "#8db4ed", "#ffd0eb",
-    "#c2d6f7", "#ffe8f5"
-  ];
+const API_URL = "https://script.google.com/macros/s/AKfycbw7OiX7wG6WqQA36xZpsTJDj4BZNYjnckEphZebvqINRKn-P8ZdaWMfFk5JnXcj6SOw/exec";
+const PASSWORD = "sjsuccess";
 
-  // ==================== 탭 전환 함수 ====================
-  function switchTab(tabName) {
-    // 모든 탭 내용 숨기기
-    const contents = document.querySelectorAll('.tab-content');
-    contents.forEach(content => content.classList.remove('active'));
+const COLORS = [
+  "#11306E","#E6007E","#1a4fa0","#ff4aa8","#2d6fd4","#ff80c8",
+  "#5b92e0","#ffaad8","#8db4ed","#ffd0eb","#c2d6f7","#ffe8f5"
+];
 
-    // 모든 탭 버튼 비활성화
-    const buttons = document.querySelectorAll('.tab-btn');
-    buttons.forEach(btn => btn.classList.remove('active'));
+let globalData = null;
+let chartsBuilt = false;
 
-    // 선택한 탭만 활성화
-    document.getElementById(tabName).classList.add('active');
-    event.target.classList.add('active');
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach((b,i) => {
+    b.classList.toggle('active', ['analysis','charts','respondents'][i] === tab);
+  });
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  if (tab === 'charts' && globalData && !chartsBuilt) buildCharts(globalData);
+}
+
+async function loadData() {
+  try {
+    const res = await fetch(API_URL);
+    const json = await res.json();
+    globalData = json;
+    document.getElementById("total-badge").textContent = `총 응답자: ${json.total}명`;
+    document.getElementById("last-updated").textContent = `마지막 업데이트: ${new Date().toLocaleString("ko-KR")}`;
+    document.getElementById("loading-main").style.display = "none";
+    buildCharts(json);
+    if (json.respondents) buildRespondentTable(json.respondents);
+  } catch(e) {
+    document.getElementById("loading-main").textContent = "데이터 로딩 실패. API URL을 확인해주세요.";
   }
+}
 
-  // ==================== 통계 탭 함수 ====================
-  async function loadData() {
-    try {
-      const res = await fetch(API_URL);
-      const json = await res.json();
-      document.getElementById("total-badge").textContent = `총 응답자: ${json.total}명`;
-      document.getElementById("last-updated").textContent =
-        `마지막 업데이트: ${new Date().toLocaleString("ko-KR")}`;
-      const grid = document.getElementById("chart-grid");
-      grid.innerHTML = "";
-      json.charts.forEach(item => {
-        const card = document.createElement("div");
-        card.className = "card";
-        const title = document.createElement("h2");
-        title.textContent = item.question;
-        card.appendChild(title);
-        const wrap = document.createElement("div");
-        wrap.className = "chart-wrap";
-        const canvas = document.createElement("canvas");
-        wrap.appendChild(canvas);
-        card.appendChild(wrap);
-        grid.appendChild(card);
-        new Chart(canvas, {
-          type: "doughnut",
-          data: {
-            labels: item.labels.map((l, i) => `${l} (${item.data[i]}명)`),
-            datasets: [{
-              data: item.data,
-              backgroundColor: COLORS.slice(0, item.labels.length),
-              borderWidth: 2,
-              borderColor: "#fff"
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: {
-                position: "right",
-                labels: { font: { size: 11 }, padding: 12, color: "#333" }
-              },
-              tooltip: {
-                callbacks: {
-                  label: ctx => {
-                    const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
-                    const pct = total ? ((ctx.parsed / total) * 100).toFixed(1) : 0;
-                    return `${ctx.label}: ${pct}%`;
-                  }
-                }
+function buildCharts(json) {
+  if (chartsBuilt) return;
+  chartsBuilt = true;
+  const grid = document.getElementById("chart-grid");
+  grid.innerHTML = "";
+
+  json.charts.forEach(item => {
+    const card = document.createElement("div");
+    card.className = "card";
+    const title = document.createElement("h2");
+    title.textContent = item.question;
+    card.appendChild(title);
+    const wrap = document.createElement("div");
+    wrap.className = "chart-wrap";
+    const canvas = document.createElement("canvas");
+    wrap.appendChild(canvas);
+    card.appendChild(wrap);
+    grid.appendChild(card);
+
+    const total = item.data.reduce((a,b) => a+b, 0);
+
+    new Chart(canvas, {
+      type: "doughnut",
+      data: {
+        labels: item.labels.map((l,i) => `${l} (${item.data[i]}명)`),
+        datasets: [{
+          data: item.data,
+          backgroundColor: COLORS.slice(0, item.labels.length),
+          borderWidth: 2, borderColor: "#fff"
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: "right", labels: { font: { size: 11 }, padding: 12, color: "#333" } },
+          tooltip: {
+            callbacks: {
+              label: ctx => {
+                const pct = total ? ((ctx.parsed / total)*100).toFixed(1) : 0;
+                return ` ${ctx.label}: ${pct}%`;
               }
             }
           }
-        });
-      });
-      document.getElementById("loading").style.display = "none";
-      grid.style.display = "grid";
-    } catch (err) {
-      document.getElementById("loading").textContent = "❌ 데이터 로딩 실패. API URL을 확인해주세요.";
-    }
-  }
-
-  // ==================== AI 분석 함수 ====================
-  function runAIAnalysis(analysisType) {
-    const resultDiv = document.getElementById('analysis-result');
-    
-    // 로딩 상태 표시
-    resultDiv.innerHTML = `
-      <div class="loading-spinner">
-        <div class="spinner"></div>
-        <p>⏳ AI가 분석 중입니다... (30초~1분 소요)</p>
-        <p style="font-size: 12px; color: #999;">
-          분석 내용이 많아서 시간이 걸릴 수 있습니다.
-        </p>
-      </div>
-    `;
-
-    // Google Apps Script 함수 호출
-    google.script.run
-      .withSuccessHandler(function(response) {
-        if (response.success && response.choices) {
-          const content = response.choices[0].message.content;
-          const title = getAnalysisTitle(analysisType);
-          
-          resultDiv.innerHTML = `
-            <div class="analysis-result">
-              <h3>${title}</h3>
-              ${content.replace(/\n/g, '<br>')}
-              <small>✓ 분석 완료: ${response.timestamp}</small>
-            </div>
-          `;
-        } else if (response.error) {
-          resultDiv.innerHTML = `
-            <div class="error-message">
-              <strong>❌ 분석 실패</strong><br>
-              ${response.error}<br>
-              <small>${response.message || ''}</small>
-            </div>
-          `;
-        } else {
-          resultDiv.innerHTML = `
-            <div class="error-message">
-              <strong>❌ 예상치 못한 오류</strong><br>
-              ${JSON.stringify(response)}
-            </div>
-          `;
         }
-      })
-      .withFailureHandler(function(error) {
-        resultDiv.innerHTML = `
-          <div class="error-message">
-            <strong>❌ 분석 요청 실패</strong><br>
-            ${error}<br>
-            <small>Apps Script URL이 올바른지 확인하세요.</small>
-          </div>
-        `;
-      })
-      .analyzeWithAI(analysisType);
+      },
+      plugins: [{
+        id: 'pctLabel',
+        afterDatasetDraw(chart) {
+          const { ctx } = chart;
+          chart.data.datasets.forEach((dataset, i) => {
+            const meta = chart.getDatasetMeta(i);
+            meta.data.forEach((arc, idx) => {
+              const val = dataset.data[idx];
+              const pct = total ? ((val/total)*100).toFixed(1) : 0;
+              if (parseFloat(pct) < 4) return;
+              const { x, y } = arc.tooltipPosition();
+              ctx.save();
+              ctx.fillStyle = '#fff';
+              ctx.font = 'bold 11px sans-serif';
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'middle';
+              ctx.fillText(`${pct}%`, x, y);
+              ctx.restore();
+            });
+          });
+        }
+      }]
+    });
+  });
+}
+
+function buildRespondentTable(rows) {
+  const tbody = document.getElementById("resp-tbody");
+  tbody.innerHTML = "";
+  rows.forEach((row, i) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${i+1}</td><td>${row[0]||''}</td><td>${row[1]||''}</td>
+      <td>${row[2]||''}</td><td>${row[3]||''}</td><td>${row[4]||''}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function checkPw() {
+  const val = document.getElementById("pw-input").value;
+  if (val === PASSWORD) {
+    document.getElementById("lock-screen").style.display = "none";
+    document.getElementById("respondent-data").style.display = "block";
+  } else {
+    document.getElementById("lock-error").style.display = "block";
+  }
+}
+
+async function runAnalysis() {
+  if (!globalData) return;
+  const btn = document.getElementById("btn-analyze");
+  const loading = document.getElementById("analysis-loading");
+  const result = document.getElementById("analysis-result");
+
+  btn.disabled = true;
+  btn.textContent = "분석 중...";
+  loading.style.display = "block";
+  result.style.display = "none";
+
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "analyze" })
+    });
+    const data = await res.json();
+    if (data.success) {
+      result.textContent = data.analysis;
+    } else {
+      result.textContent = "분석 중 오류가 발생했습니다: " + (data.error || "");
+    }
+    result.style.display = "block";
+  } catch(e) {
+    result.textContent = "분석 요청 실패. 잠시 후 다시 시도해주세요.";
+    result.style.display = "block";
   }
 
-  function getAnalysisTitle(type) {
-    const titles = {
-      'interest_analysis': '📌 프로그램 관심도 분석',
-      'student_insights': '👥 학생 특성 분석',
-      'strategic_recommendations': '🎯 전략 및 개선방안',
-      'comprehensive': '📊 종합 분석 보고서'
-    };
-    return titles[type] || '분석 결과';
-  }
+  loading.style.display = "none";
+  btn.disabled = false;
+  btn.textContent = "다시 분석";
+}
 
-  // ==================== 초기 로드 ====================
-  loadData();
-  setInterval(loadData, 5 * 60 * 1000); // 5분마다 갱신
+loadData();
+setInterval(loadData, 5 * 60 * 1000);
 </script>
 
 </body>
